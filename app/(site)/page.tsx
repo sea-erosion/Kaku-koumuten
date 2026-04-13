@@ -124,7 +124,7 @@ export default function TopPage() {
               href={`/works/${w.slug}`}
               image={w.image}
               imageAlt={w.imageAlt}
-              category={w.category}
+              category={w.type}
               title={w.title}
             />
           ))}

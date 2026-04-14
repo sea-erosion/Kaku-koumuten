@@ -15,7 +15,7 @@ export default function ShinkaiClient() {
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 10) {
-        window.scrollTo({ top: 1 })
+        window.scrollTo({ top: 0 })
       }
     }
     window.addEventListener('scroll', handleScroll)

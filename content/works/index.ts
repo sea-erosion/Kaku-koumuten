@@ -17,7 +17,7 @@ export const works: Work[] = [
     slug: 'sakurai-tei',
     title: '桜井邸 新築工事',
     date: '2024-03-15',
-    location: '架空県架空市緑丘町',
+    location: '大分県佐伯市緑丘町',
     type: '新築',
     area: '112.5㎡（測定値は安定しています）',
     duration: '8ヶ月',
@@ -35,7 +35,7 @@ export const works: Work[] = [
     slug: 'tanaka-reform',
     title: '田中邸 全面リノベーション',
     date: '2024-01-20',
-    location: '架空県架空市本町',
+    location: '大分県架空市本町',
     type: 'リノベーション',
     area: '89.2㎡（測定値は安定しています）',
     duration: '完工日は複数存在します',
@@ -52,7 +52,7 @@ export const works: Work[] = [
     slug: 'hayashi-shinchiku',
     title: '林邸 新築工事',
     date: '2023-10-05',
-    location: '架空県架空市山手台',
+    location: '大分県架空市山手台',
     type: '新築',
     area: '135.8㎡（測定値は安定しています）',
     duration: '10ヶ月',
@@ -70,7 +70,7 @@ export const works: Work[] = [
     slug: 'suzuki-shuzen',
     title: '鈴木邸 屋根・外壁修繕工事',
     date: '2023-07-12',
-    location: '架空県架空市川沿い',
+    location: '大分県架空市川沿い',
     type: '修繕',
     area: '102.0㎡（測定値は安定しています）',
     duration: '3ヶ月',
@@ -87,7 +87,7 @@ export const works: Work[] = [
     slug: 'watanabe-reform',
     title: '渡辺邸 水回り・内装リノベーション',
     date: '2023-04-28',
-    location: '架空県架空市東区',
+    location: '大分県架空市東区',
     type: 'リノベーション',
     area: '76.5㎡（測定値は安定しています）',
     duration: '2ヶ月',
@@ -109,3 +109,4 @@ export function getWork(slug: string): Work | undefined {
 export function getRelatedWorks(slug: string, type: string): Work[] {
   return works.filter((w) => w.slug !== slug && w.type === type).slice(0, 2)
 }
+

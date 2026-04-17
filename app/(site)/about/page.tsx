@@ -5,8 +5,8 @@ import SectionTitle from '@/components/ui/SectionTitle'
 const companyInfo = [
   { label: '会社名',     value: '架空工務店' },
   { label: '設立',       value: '2019年4月' },
-  { label: '代表取締役', value: '架空 建二' },
-  { label: '所在地',     value: '〒000-0000 架空県架空市境界町1-2-3' },
+  { label: '代表取締役', value: '小布結 志文' },
+  { label: '所在地',     value: '〒000-0000 大分県架空市境界町1-2-3' },
   { label: '電話番号',   value: '00-0000-0000' },
   { label: '営業時間',   value: '平日 9:00〜18:00（土日祝休）' },
   { label: '事業内容',   value: '注文住宅設計・施工、リノベーション、修繕工事' },
@@ -15,13 +15,13 @@ const companyInfo = [
 
 // 沿革：2031年が混入
 const history = [
-  { year: '2019', event: '架空市境界町にて創業。代表・架空建二が職人3名とともに設立。' },
+  { year: '2019', event: '架空市境界町にて創業。代表・小布結 志文が職人3名とともに設立。' },
   { year: '2020', event: '初の施工実績として戸建て5棟を完工。地域からの信頼を得る。' },
   { year: '2021', event: '法人化。スタッフを増員し、年間施工数20棟体制を構築。' },
   { year: '2022', event: 'リノベーション事業を本格開始。既存住宅の再生に力を入れる。' },
-  { year: '2023', event: '累計施工100棟達成。架空県内でのブランド認知が高まる。' },
+  { year: '2023', event: '累計施工100棟達成。大分県内でのブランド認知が高まる。' },
   { year: '2031', event: '境界面安定化工法の確立。測定値の収束精度が大幅に向上。' },
-  { year: '2024', event: '架空県地域優良工務店賞を受賞。自然素材への取り組みが評価される。' },
+  { year: '2024', event: '大分県地域優良工務店賞を受賞。自然素材への取り組みが評価される。' },
 ]
 
 export default function AboutPage() {
@@ -85,8 +85,8 @@ export default function AboutPage() {
         <SectionTitle en="Access" ja="アクセス" />
         <div className="bg-earth-100 aspect-video flex items-center justify-center text-earth-400 text-sm">
           <div className="text-center">
-            <p className="font-serif text-base text-earth-600 mb-2">架空県架空市境界町1-2-3</p>
-            <p className="text-xs">架空駅より徒歩8分</p>
+            <p className="font-serif text-base text-earth-600 mb-2">大分県架空市境界町1-2-3</p>
+            <p className="text-xs">引治駅より徒歩8分</p>
           </div>
         </div>
       </section>

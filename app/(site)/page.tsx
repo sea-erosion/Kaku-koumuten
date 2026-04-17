@@ -10,7 +10,7 @@ import { newsItems } from '@/content/news'
 const strengths = [
   {
     title: '地域密着30年',
-    body: '架空県を中心に、地域の皆様とともに歩んできました。土地の気候・風土を知り尽くした職人が、長く愛される家を建てます。',
+    body: '大分県を中心に、地域の皆様とともに歩んできました。土地の気候・風土を知り尽くした職人が、長く愛される家を建てます。',
   },
   {
     title: '自然素材へのこだわり',
@@ -67,12 +67,12 @@ export default function TopPage() {
           <div className="absolute inset-0 bg-earth-900/50" />
         </div>
         <div className="relative z-10 text-center text-earth-50 px-6">
-          <p className="text-xs tracking-[0.4em] mb-6 text-gold-300 uppercase">Kakuu Koumuten</p>
+          <p className="text-xs tracking-[0.4em] mb-6 text-gold-300 uppercase">Kaku Koumuten</p>
           <h1 className="font-serif text-4xl md:text-6xl tracking-wide leading-snug mb-6">
             暮らしに、根を張る。
           </h1>
           <p className="text-sm md:text-base text-earth-200 tracking-wide max-w-md mx-auto mb-10 leading-loose">
-            架空県で30年。地域の風土を知り尽くした職人が、<br className="hidden md:block" />
+            大分県で30年。地域の風土を知り尽くした職人が、<br className="hidden md:block" />
             お客様とともに、長く愛される家をつくります。
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -110,7 +110,7 @@ export default function TopPage() {
               </p>
             ))}
           </div>
-          <p className="mt-8 text-earth-400 text-xs tracking-widest">代表取締役　架空 建二</p>
+          <p className="mt-8 text-earth-400 text-xs tracking-widest">代表取締役 小布結 志文</p>
         </div>
       </section>
 

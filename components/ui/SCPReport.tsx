@@ -584,7 +584,6 @@ export function SCPLog({ label, type, meta, content }: SCPLogEntry) {
     </div>
   )
 }
-import React from "react";
 
 /** ダイアログ行（インタビュー用） */
 export function DialogLine({

@@ -1,6 +1,9 @@
 # 架空工務店 / Kakuu Koumuten
 
 <!-- 作成日: 2026-04-18 -->
+<!-- 更新日: 2026-07-03 -->
+
+> **お知らせ（2026-07-03）**：お問い合わせフォームに EmailJS を使った実際のメール送信処理を実装しました。詳細は「[お問い合わせフォームの挙動](#お問い合わせフォームの挙動)」を参照してください。
 
 大分県を拠点とする工務店のコーポレートサイト……に見せかけた、**ARG（代替現実ゲーム）**を内包したNext.jsプロジェクトです。
 
@@ -18,7 +21,7 @@
 - **言語**: TypeScript
 - **スタイリング**: Tailwind CSS v4
 - **アニメーション**: Framer Motion
-- **メール送信**: Resend
+- **メール送信**: EmailJS（詳細は下記「[お問い合わせフォームの挙動](#お問い合わせフォームの挙動)」参照）
 
 ---
 
@@ -30,6 +33,37 @@ npm run dev
 ```
 
 開発サーバーは `http://localhost:3000` で起動します。
+
+---
+
+## お問い合わせフォームの挙動
+
+`/contact` のフォームは `app/(site)/contact/ContactForm.tsx`（クライアントコンポーネント）が描画し、送信は `app/(site)/contact/actions.ts` の Server Action（`submitContact`）と組み合わせて2段階で処理します。
+
+1. フォーム送信時、まず `submitContact`（サーバー側）がメッセージ内容を判定します。
+   - 入力内容が「[ヒントの在り処](#ヒントの在り処)」記載のキーワードと**完全一致**した場合、対応する隠しページへ即座に `redirect()` します（ARGルート）。キーワード一覧はサーバー上でのみ保持しており、クライアントのJSバンドルには含まれません。
+   - キーワードに一致しない通常の問い合わせの場合はリダイレクトせず、`{ status: 'ready-to-send' }` を返してクライアントに処理を戻します。
+2. クライアント側（`ContactForm.tsx`）は `ready-to-send` を受け取ると、[`@emailjs/browser`](https://www.emailjs.com/docs/sdk/installation/) の `emailjs.sendForm()` を呼び出し、実際にメールを送信します。送信が成功したら `/contact/thanks`（送信完了ページ）へ遷移し、失敗した場合はフォーム内にエラーメッセージを表示します。
+
+### 必要な環境変数
+
+EmailJSはブラウザから直接APIを呼び出す方式のため、以下の環境変数（`NEXT_PUBLIC_` プレフィックス必須）を [EmailJSダッシュボード](https://dashboard.emailjs.com/admin) から取得して設定してください。`.env.example` を `.env.local` にコピーして値を入力します。
+
+```bash
+cp .env.example .env.local
+```
+
+| 環境変数 | 内容 |
+|---|---|
+| `NEXT_PUBLIC_EMAILJS_SERVICE_ID` | 送信に使うEmailJSサービスのID |
+| `NEXT_PUBLIC_EMAILJS_TEMPLATE_ID` | 送信に使うメールテンプレートのID |
+| `NEXT_PUBLIC_EMAILJS_PUBLIC_KEY` | EmailJSのPublic Key |
+
+未設定の場合、通常のお問い合わせ送信時にコンソールへエラーを出力し、フォーム上に「現在お問い合わせを受け付けられません」というメッセージを表示します（ARGキーワードのルートには影響しません）。
+
+EmailJSダッシュボード側のテンプレート本文（通知メール・自動返信メール）の下書きと設定手順は [`emailjs/README.md`](./emailjs/README.md) にまとめています。
+
+過去にはサーバーサイドで [Resend](https://resend.com) 経由の送信を行っていましたが、キーワード判定によるARG分岐処理へ置き換えた際に実送信処理が一時的に未実装のまま残っていた時期がありました。現在はEmailJSによるクライアントサイド送信に置き換え済みで、使われていなかった `resend` 依存関係も `package.json` から削除しています。
 
 ---
 
@@ -69,7 +103,7 @@ npm run dev
 
 ### ゾーン構造
 
-隠しページは5つのゾーンで構成されています。
+隠しページは5つのゾーン＋特別ルート「海蝕機関」で構成されています。
 
 | ゾーン | 名称 | 特徴 |
 |--------|------|------|
@@ -78,6 +112,7 @@ npm run dev
 | Zone C | 反響域 | 言葉が残る空間 |
 | Zone D | 鏡域 | すべてが反転 |
 | Zone X | 未分類 | 記録不能 |
+| — | 海蝕機関 | キーワード「海蝕機関」で到達（`/p/ks9mw`）。観測記録・勧告一覧を掲載 |
 
 ### 救済ルート
 
@@ -91,6 +126,10 @@ npm run dev
 .
 ├── app/
 │   ├── (site)/          # 通常のサイトページ
+│   │   └── contact/
+│   │       ├── page.tsx        # ページ本体（サーバーコンポーネント）
+│   │       ├── ContactForm.tsx # フォーム本体（クライアントコンポーネント、EmailJS送信）
+│   │       └── actions.ts      # ARGキーワード判定Server Action
 │   ├── api/boundary/    # 境界面ステータスAPI
 │   └── p/               # 隠しページ群
 │       ├── a3f8k/       # Zone A
@@ -98,13 +137,24 @@ npm run dev
 │       ├── nv91c/       # Zone C
 │       ├── zr4ht/       # Zone D
 │       ├── 0we5j/       # Zone X
+│       ├── ks9mw/       # 海蝕機関（キーワード「海蝕機関」）
+│       ├── g7nkf/       # Newspaperコンポーネントのデモページ
+│       ├── kk0091/      # SCPReportコンポーネントのデモページ
 │       └── help/        # 救済ルート
 ├── components/
 │   ├── layout/          # Header, Footer, PageTransition
-│   └── ui/              # Button, Card, SectionTitle
-└── content/
-    ├── news/            # お知らせデータ
-    └── works/           # 施工事例データ
+│   └── ui/              # Button, Card, SectionTitle, Newspaper, SCPReport
+├── content/
+│   ├── news/            # お知らせデータ
+│   └── works/           # 施工事例データ
+├── docx/                # UIコンポーネントの仕様書
+│   ├── Newspaper.md      # Newspaperコンポーネントの説明
+│   └── SCPReport.md      # SCPReportコンポーネントの説明
+├── emailjs/             # EmailJSテンプレートの下書き・設定手順
+│   ├── README.md
+│   ├── notification-template.html
+│   └── auto-reply-template.html
+└── .env.example         # EmailJS用の環境変数テンプレート
 ```
 
 ---

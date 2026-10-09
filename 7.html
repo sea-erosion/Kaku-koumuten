@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Windows 7 Aero風 モーダルウィンドウ</title>
+  <style>
+    /* --- Windows 7専用カラー＆エフェクト変数 --- */
+    :root {
+      /* Aeroガラスの基本色（ほんのり青みのある透明なすりガラス） */
+      --aero-glass-bg: rgba(180, 215, 245, 0.25);
+      --aero-glow: rgba(255, 255, 255, 0.6);
+      --aero-border: rgba(255, 255, 255, 0.45);
+      
+      /* クライアント領域（ウィンドウ内）の黒背景 */
+      --win-content-bg: #0d0d0d;
+      --text-white: #ffffff;
+      --text-dim: #8c8c8c;
+      --border-inner: #262626;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, 'Segoe UI Symbol', 'Noto Sans JP', sans-serif;
+      background-color: #030305;
+      color: var(--text-white);
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    /* システム起動ボタン */
+    .launch-btn {
+      font-family: inherit;
+      background: linear-gradient(to bottom, #2d2d2d, #1a1a1a);
+      color: var(--text-white);
+      border: 1px solid #444;
+      padding: 10px 24px;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .launch-btn:hover {
+      background: linear-gradient(to bottom, #3a3a3a, #222);
+      border-color: #555;
+    }
+
+    /* --- Windows 7風 ウィンドウ本体 --- */
+    .win7-window {
+      border: 1px solid var(--aero-border);
+      /* Aero外枠の丸み */
+      border-radius: 8px; 
+      padding: 6px; /* ガラスフレームの厚み */
+      width: 90%;
+      max-width: 560px;
+      
+      /* Aero最大の武器：すりガラス効果と、何層にも重なる外光の光沢 */
+      background: linear-gradient(135deg, var(--aero-glass-bg), rgba(150, 190, 230, 0.15));
+      backdrop-filter: blur(12px) saturate(140%);
+      -webkit-backdrop-filter: blur(12px) saturate(140%);
+      
+      /* ガラスの立体感を出す幾重ものシャドウ */
+      box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.8),
+        inset 0 1px 1px var(--aero-glow),
+        0 0 1px 1px rgba(0, 0, 0, 0.4);
+      
+      overflow: hidden;
+
+      /* 開閉アニメーション */
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 0.2s cubic-bezier(0.1, 0.9, 0.2, 1), transform 0.2s cubic-bezier(0.1, 0.9, 0.2, 1), display 0.2s allow-discrete;
+    }
+
+    .win7-window[open] {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* 背景オーバーレイ */
+    .win7-window::backdrop {
+      background-color: rgba(0, 0, 0, 0.75);
+      opacity: 0;
+      transition: opacity 0.2s ease-out, display 0.2s allow-discrete;
+    }
+    .win7-window[open]::backdrop {
+      opacity: 1;
+    }
+
+    /* --- タイトルバー（Aeroキャプション） --- */
+    .titlebar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 6px 8px 6px;
+      user-select: none;
+    }
+
+    .title-text {
+      margin: 0;
+      font-size: 12px;
+      font-weight: normal;
+      color: #ffffff;
+      /* Windows 7特有の、タイトル文字の後ろが光る白いモヤ(テキストシャドウ)を再現 */
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 0 0 4px rgba(255, 255, 255, 0.5), 0 1px 2px rgba(0,0,0,0.5);
+    }
+
+    /* 右側のボタン3連星 */
+    .window-controls {
+      display: flex;
+      gap: 1px;
+      padding-right: 2px;
+    }
+
+    /* Win7独特の、光沢と角丸のある横長四角のボタンベース */
+    .win7-btn {
+      background: linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.05) 100%);
+      border: 1px solid rgba(0, 0, 0, 0.35);
+      border-top-color: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+      width: 30px;
+      height: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      color: rgba(255, 255, 255, 0.8);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 1px 1px rgba(0,0,0,0.1);
+    }
+
+    /* 最小化・最大化のホバー（澄んだ青い光） */
+    .win7-btn:hover {
+      background: linear-gradient(to bottom, #7bb3e7 0%, #478cd1 50%, #2267b1 50%, #428fdc 100%);
+      border-color: #1d4d7e;
+      color: #fff;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 0 4px #478cd1;
+    }
+
+    /* 閉じるボタン専用（Win7を象徴する鮮やかな赤色グラデーション） */
+    .win7-btn.close-trigger {
+      width: 46px; /* 閉じるボタンだけ横に長い */
+      background: linear-gradient(to bottom, #e37676 0%, #ce4b4b 50%, #b61d1d 50%, #cf4444 100%);
+      border-color: #7c1a1a;
+      text-shadow: 0 1px 1px rgba(0,0,0,0.5);
+    }
+    .win7-btn.close-trigger:hover {
+      background: linear-gradient(to bottom, #f39c9c 0%, #e66262 50%, #d12c2c 50%, #eb5858 100%);
+      border-color: #921515;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 0 6px #d12c2c;
+    }
+
+    /* --- ウィンドウ内のコンテンツ領域（黒背景） --- */
+    .window-body {
+      background-color: var(--win-content-bg);
+      border: 1px solid var(--border-inner);
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* 画像の「8PS」風のレトロサイバーコア */
+    .system-logo {
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+      background: linear-gradient(to bottom, #fff, #999);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .system-sub-logo {
+      font-size: 10px;
+      color: var(--text-dim);
+      border-top: 1px solid #333;
+      padding-top: 6px;
+      margin-bottom: 24px;
+      width: 100%;
+      max-width: 280px;
+      letter-spacing: 0.15em;
+    }
+
+    .description {
+      font-size: 12px;
+      line-height: 1.8;
+      color: #aaa;
+      max-width: 420px;
+      margin-bottom: 32px;
+    }
+
+    /* 近未来的な斜めカットのLOGINボタン（前回の画像を継承） */
+    .cyber-login-btn {
+      font-family: inherit;
+      background-color: var(--text-white);
+      color: #000000;
+      border: none;
+      padding: 12px 0;
+      width: 100%;
+      max-width: 240px;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      position: relative;
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .cyber-login-btn:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- トリガー -->
+  <button class="launch-btn" id="openBtn">CONNECT_AERO_SYSTEM</button>
+
+  <!-- Windows 7 Aeroスタイル モーダル -->
+  <dialog class="win7-window" id="win7Modal">
+    
+    <!-- Aeroタイトルバー -->
+    <div class="titlebar">
+      <h2 class="title-text">the Boundary Principle System</h2>
+      <div class="window-controls">
+        <!-- 最小化 (ダミー) -->
+        <button class="win7-btn" aria-label="最小化" tabindex="-1">
+          <svg width="8" height="1" viewBox="0 0 8 1" fill="none" xmlns="http://w3.org"><line stroke="currentColor" stroke-width="1.5" y1="0.5" x2="8" y2="0.5"/></svg>
+        </button>
+        <!-- 最大化 (ダミー) -->
+        <button class="win7-btn" aria-label="最大化" tabindex="-1">
+          <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://w3.org"><rect x="0.75" y="0.75" width="6.5" height="6.5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+        </button>
+        <!-- 閉じる (実稼働：赤色) -->
+        <button class="win7-btn close-trigger" id="closeBarBtn" aria-label="閉じる">
+          <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://w3.org"><path d="M1 1L7 7M7 1L1 7" stroke="currentColor" stroke-width="1.5"/></svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- ウィンドウ内部（元のクールな黒UIを保護格納） -->
+    <div class="window-body">
+      <div class="system-logo">8PS</div>
+      <div class="system-sub-logo">BOUNDARY PRINCIPLE SYSTEM</div>
+      
+      <p class="description">
+        "We, 'The Fourth Boundary,' are a collective of creators who weave stories in the ambiguous realm between reality and the virtual."
+      </p>
+      
+      <button class="cyber-login-btn" id="loginBtn">LOGIN</button>
+    </div>
+
+  </dialog>
+
+  <script>
+    const modal = document.getElementById('win7Modal');
+    const openBtn = document.getElementById('openBtn');
+    const closeBarBtn = document.getElementById('closeBarBtn');
+    const loginBtn = document.getElementById('loginBtn');
+
+    openBtn.addEventListener('click', () => modal.showModal());
+
+    const closeModal = () => modal.close();
+    closeBarBtn.addEventListener('click', closeModal);
+
+    loginBtn.addEventListener('click', () => {
+      alert('ACCESS GRANTED.');
+      closeModal();
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+  </script>
+</body>
+</html>
